@@ -19,7 +19,7 @@ export function FloatingChatIcon({ onClick }: FloatingChatIconProps) {
   return (
     <button
       onClick={onClick}
-      className="fixed bottom-6 right-6 rounded-full shadow-lg hover:shadow-xl transition-shadow cursor-pointer p-0 border-0"
+      className="fixed bottom-6 right-6 z-50 rounded-full shadow-lg hover:shadow-xl hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer p-0 border-0 animate-bounce-in"
       style={{ backgroundColor: tenant.theme_colors.primary }}
     >
       <Avatar className="h-14 w-14">

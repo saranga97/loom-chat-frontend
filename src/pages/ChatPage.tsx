@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { TenantProvider, useTenant } from "@/providers/TenantProvider";
 import { useChat } from "@/hooks/useChat";
@@ -10,13 +10,33 @@ function ChatPageInner({ tenantName }: { tenantName: string }) {
   const { tenant, loading, error } = useTenant();
   const chat = useChat({ tenantName });
   const [chatOpen, setChatOpen] = useState(false);
+  const chatWindowRef = useRef<HTMLDivElement>(null);
 
-  // Auto-open chat window when session is restored
-  useEffect(() => {
-    if (chat.roomId && !chat.restoring) {
+  // Auto-open chat window when room becomes available
+  const prevRoomId = useRef<string | null>(null);
+  if (chat.roomId && chat.roomId !== prevRoomId.current) {
+    prevRoomId.current = chat.roomId;
+    if (!chatOpen) {
       setChatOpen(true);
     }
-  }, [chat.roomId, chat.restoring]);
+  }
+
+  // Close on outside click
+  useEffect(() => {
+    if (!chatOpen) return;
+
+    function handleClick(e: MouseEvent) {
+      if (
+        chatWindowRef.current &&
+        !chatWindowRef.current.contains(e.target as Node)
+      ) {
+        setChatOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [chatOpen]);
 
   if (loading || chat.restoring) {
     return (
@@ -53,7 +73,10 @@ function ChatPageInner({ tenantName }: { tenantName: string }) {
   return (
     <>
       {chatOpen && (
-        <div className="fixed bottom-24 right-6 w-[400px] h-[600px] z-50">
+        <div
+          ref={chatWindowRef}
+          className="fixed bottom-24 right-6 w-[400px] h-[600px] z-50"
+        >
           <ChatWindow
             messages={chat.messages}
             isStreaming={chat.isStreaming}
