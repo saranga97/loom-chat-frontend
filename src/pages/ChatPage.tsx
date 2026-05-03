@@ -68,6 +68,7 @@ function ChatPageInner({ tenantName }: { tenantName: string }) {
           <ChatWindow
             messages={chat.messages}
             isStreaming={chat.isStreaming}
+            isLoadingGreeting={chat.isLoadingGreeting}
             toolCall={chat.toolCall}
             hasRoom={!!chat.roomId}
             onSend={chat.handleSend}

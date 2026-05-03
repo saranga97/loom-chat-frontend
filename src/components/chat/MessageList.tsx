@@ -7,12 +7,14 @@ import type { ChatMessage } from "@/types";
 interface MessageListProps {
   messages: ChatMessage[];
   isStreaming: boolean;
+  isLoadingGreeting: boolean;
   toolCall: string | null;
 }
 
 export function MessageList({
   messages,
   isStreaming,
+  isLoadingGreeting,
   toolCall,
 }: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -41,6 +43,7 @@ export function MessageList({
             />
           );
         })}
+        {isLoadingGreeting && <TypingIndicator />}
         {toolCall && <ToolCallIndicator toolName={toolCall} />}
         {isStreaming && !toolCall && messages[messages.length - 1]?.role !== "assistant" && (
           <TypingIndicator />

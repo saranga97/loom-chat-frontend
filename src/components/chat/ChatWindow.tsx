@@ -7,6 +7,7 @@ import type { ChatMessage } from "@/types";
 interface ChatWindowProps {
   messages: ChatMessage[];
   isStreaming: boolean;
+  isLoadingGreeting: boolean;
   toolCall: string | null;
   hasRoom: boolean;
   onSend: (message: string) => void;
@@ -18,6 +19,7 @@ interface ChatWindowProps {
 export function ChatWindow({
   messages,
   isStreaming,
+  isLoadingGreeting,
   toolCall,
   hasRoom,
   onSend,
@@ -33,6 +35,7 @@ export function ChatWindow({
           <MessageList
             messages={messages}
             isStreaming={isStreaming}
+            isLoadingGreeting={isLoadingGreeting}
             toolCall={toolCall}
           />
           <MessageInput onSend={onSend} disabled={isStreaming} />

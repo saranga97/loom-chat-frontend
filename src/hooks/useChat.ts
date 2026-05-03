@@ -40,6 +40,7 @@ export function useChat({ tenantName }: UseChatOptions) {
   const [roomId, setRoomId] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [restoring, setRestoring] = useState(true);
+  const [isLoadingGreeting, setIsLoadingGreeting] = useState(false);
   const bufferRef = useRef("");
 
   const handleEvent = useCallback((event: WSEvent) => {
@@ -144,12 +145,15 @@ export function useChat({ tenantName }: UseChatOptions) {
   const handleRestart = useCallback(async () => {
     if (!username) return;
     disconnect();
-    const result = await apiStartChat(tenantName, username);
-    setRoomId(result.room_id);
-    setMessages([{ role: "assistant", content: result.greeting }]);
+    setMessages([]);
     setIsStreaming(false);
     setToolCall(null);
     bufferRef.current = "";
+    setIsLoadingGreeting(true);
+    const result = await apiStartChat(tenantName, username);
+    setIsLoadingGreeting(false);
+    setRoomId(result.room_id);
+    setMessages([{ role: "assistant", content: result.greeting }]);
     saveSession(tenantName, result.room_id, username);
     connect(tenantName, result.room_id);
   }, [tenantName, username, disconnect, connect]);
@@ -158,6 +162,7 @@ export function useChat({ tenantName }: UseChatOptions) {
     messages,
     isStreaming,
     isConnected,
+    isLoadingGreeting,
     toolCall,
     roomId,
     username,
