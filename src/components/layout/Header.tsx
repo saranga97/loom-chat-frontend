@@ -1,12 +1,28 @@
+import { useState } from "react";
+import { RotateCcw, X } from "lucide-react";
 import { useTenant } from "@/providers/TenantProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 
 interface HeaderProps {
   onClose?: () => void;
+  onRestart?: () => void;
 }
 
-export function Header({ onClose }: HeaderProps) {
+export function Header({ onClose, onRestart }: HeaderProps) {
   const { tenant } = useTenant();
+  const [restartOpen, setRestartOpen] = useState(false);
+
   if (!tenant) return null;
 
   const initials = tenant.chatbot_name
@@ -18,10 +34,13 @@ export function Header({ onClose }: HeaderProps) {
 
   return (
     <header
-      className="flex items-center gap-3 px-4 py-3 border-b border-border"
+      className="relative flex items-center gap-3 px-5 py-4"
       style={{ backgroundColor: tenant.theme_colors.primary }}
     >
-      <Avatar className="h-9 w-9 border-2 border-white/30">
+      {/* Subtle gradient overlay for depth */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/5 to-transparent" />
+
+      <Avatar className="relative z-10 h-8 w-8 border-2 border-white/30">
         {tenant.logo_url ? (
           <AvatarImage src={tenant.logo_url} alt={tenant.chatbot_name} />
         ) : null}
@@ -32,21 +51,82 @@ export function Header({ onClose }: HeaderProps) {
           {initials}
         </AvatarFallback>
       </Avatar>
-      <h1 className="flex-1 text-base font-semibold text-white">
+
+      <h1 className="relative z-10 flex-1 text-base font-semibold text-white">
         {tenant.chatbot_name}
       </h1>
-      {onClose && (
-        <button
-          onClick={onClose}
-          className="text-white/80 hover:text-white transition-colors cursor-pointer"
-          aria-label="Close chat"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
-      )}
+
+      <div className="relative z-10 flex items-center gap-1">
+        {onRestart && (
+          <Popover open={restartOpen} onOpenChange={setRestartOpen}>
+            <Tooltip>
+              <PopoverTrigger
+                render={
+                  <TooltipTrigger
+                    render={
+                      <button
+                        className="group cursor-pointer rounded-full bg-white/10 p-1.5 text-white/80 transition-all hover:scale-110 hover:bg-white/20 hover:text-white active:scale-95"
+                        aria-label="Restart chat"
+                      >
+                        <RotateCcw className="h-4 w-4 transition-transform duration-200 group-hover:rotate-[-45deg]" />
+                      </button>
+                    }
+                  />
+                }
+              />
+              <TooltipContent side="bottom" sideOffset={8}>
+                Restart the chat
+              </TooltipContent>
+            </Tooltip>
+            <PopoverContent
+              side="bottom"
+              align="end"
+              sideOffset={8}
+              className="w-auto"
+            >
+              <p className="text-sm font-medium">Start a new conversation?</p>
+              <div className="mt-1 flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="default"
+                  onClick={() => {
+                    setRestartOpen(false);
+                    onRestart();
+                  }}
+                >
+                  Yes
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setRestartOpen(false)}
+                >
+                  No
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
+        )}
+
+        {onClose && (
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <button
+                  onClick={onClose}
+                  className="cursor-pointer rounded-full bg-white/10 p-1.5 text-white/80 transition-all hover:scale-110 hover:bg-white/20 hover:text-white active:scale-95"
+                  aria-label="Close chat"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              }
+            />
+            <TooltipContent side="bottom" sideOffset={8}>
+              Close chat
+            </TooltipContent>
+          </Tooltip>
+        )}
+      </div>
     </header>
   );
 }

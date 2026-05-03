@@ -1,22 +1,46 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { TenantProvider, useTenant } from "@/providers/TenantProvider";
 import { useChat } from "@/hooks/useChat";
 import { ChatWindow } from "@/components/chat/ChatWindow";
-import { UsernameDialog } from "@/components/layout/UsernameDialog";
 import { FloatingChatIcon } from "@/components/layout/FloatingChatIcon";
 
 function ChatPageInner({ tenantName }: { tenantName: string }) {
   const { tenant, loading, error } = useTenant();
   const chat = useChat({ tenantName });
   const [chatOpen, setChatOpen] = useState(false);
+  const chatWindowRef = useRef<HTMLDivElement>(null);
 
-  // Auto-open chat window when session is restored
-  useEffect(() => {
-    if (chat.roomId && !chat.restoring) {
+  // Auto-open chat window when room becomes available
+  const prevRoomId = useRef<string | null>(null);
+  if (chat.roomId && chat.roomId !== prevRoomId.current) {
+    prevRoomId.current = chat.roomId;
+    if (!chatOpen) {
       setChatOpen(true);
     }
-  }, [chat.roomId, chat.restoring]);
+  }
+
+  // Close on outside click
+  useEffect(() => {
+    if (!chatOpen) return;
+
+    function handleClick(e: MouseEvent) {
+      const target = e.target as HTMLElement;
+      // Ignore clicks inside portalled popover/tooltip content
+      if (target.closest("[data-slot='popover-content']") || target.closest("[data-slot='tooltip-content']")) {
+        return;
+      }
+      if (
+        chatWindowRef.current &&
+        !chatWindowRef.current.contains(target)
+      ) {
+        setChatOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [chatOpen]);
 
   if (loading || chat.restoring) {
     return (
@@ -34,32 +58,23 @@ function ChatPageInner({ tenantName }: { tenantName: string }) {
     );
   }
 
-  // No room yet — show floating icon + username dialog
-  if (!chat.roomId) {
-    return (
-      <>
-        <UsernameDialog
-          open={chatOpen}
-          onSubmit={(name) => {
-            chat.handleStartChat(name);
-          }}
-        />
-        <FloatingChatIcon onClick={() => setChatOpen(true)} />
-      </>
-    );
-  }
-
-  // Room exists — toggle between floating icon and chat window
   return (
     <>
       {chatOpen && (
-        <div className="fixed bottom-24 right-6 w-[400px] h-[600px] z-50">
+        <div
+          ref={chatWindowRef}
+          className="fixed bottom-24 right-6 w-[400px] h-[600px] z-50 animate-slide-up-fade"
+        >
           <ChatWindow
             messages={chat.messages}
             isStreaming={chat.isStreaming}
+            isLoadingGreeting={chat.isLoadingGreeting}
             toolCall={chat.toolCall}
+            hasRoom={!!chat.roomId}
             onSend={chat.handleSend}
             onClose={() => setChatOpen(false)}
+            onStartChat={chat.handleStartChat}
+            onRestart={chat.handleRestart}
           />
         </div>
       )}

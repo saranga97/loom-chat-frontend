@@ -40,6 +40,7 @@ export function useChat({ tenantName }: UseChatOptions) {
   const [roomId, setRoomId] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [restoring, setRestoring] = useState(true);
+  const [isLoadingGreeting, setIsLoadingGreeting] = useState(false);
   const bufferRef = useRef("");
 
   const handleEvent = useCallback((event: WSEvent) => {
@@ -87,7 +88,7 @@ export function useChat({ tenantName }: UseChatOptions) {
     }
   }, []);
 
-  const { connect, send } = useWebSocket({
+  const { connect, send, disconnect } = useWebSocket({
     onEvent: handleEvent,
     onOpen: () => setIsConnected(true),
     onClose: () => setIsConnected(false),
@@ -141,15 +142,33 @@ export function useChat({ tenantName }: UseChatOptions) {
     [send, isStreaming]
   );
 
+  const handleRestart = useCallback(async () => {
+    if (!username) return;
+    disconnect();
+    setMessages([]);
+    setIsStreaming(false);
+    setToolCall(null);
+    bufferRef.current = "";
+    setIsLoadingGreeting(true);
+    const result = await apiStartChat(tenantName, username);
+    setIsLoadingGreeting(false);
+    setRoomId(result.room_id);
+    setMessages([{ role: "assistant", content: result.greeting }]);
+    saveSession(tenantName, result.room_id, username);
+    connect(tenantName, result.room_id);
+  }, [tenantName, username, disconnect, connect]);
+
   return {
     messages,
     isStreaming,
     isConnected,
+    isLoadingGreeting,
     toolCall,
     roomId,
     username,
     restoring,
     handleStartChat,
     handleSend,
+    handleRestart,
   };
 }
