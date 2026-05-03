@@ -25,9 +25,14 @@ function ChatPageInner({ tenantName }: { tenantName: string }) {
     if (!chatOpen) return;
 
     function handleClick(e: MouseEvent) {
+      const target = e.target as HTMLElement;
+      // Ignore clicks inside portalled popover/tooltip content
+      if (target.closest("[data-slot='popover-content']") || target.closest("[data-slot='tooltip-content']")) {
+        return;
+      }
       if (
         chatWindowRef.current &&
-        !chatWindowRef.current.contains(e.target as Node)
+        !chatWindowRef.current.contains(target)
       ) {
         setChatOpen(false);
       }
@@ -58,7 +63,7 @@ function ChatPageInner({ tenantName }: { tenantName: string }) {
       {chatOpen && (
         <div
           ref={chatWindowRef}
-          className="fixed bottom-24 right-6 w-[400px] h-[600px] z-50"
+          className="fixed bottom-24 right-6 w-[400px] h-[600px] z-50 animate-slide-up-fade"
         >
           <ChatWindow
             messages={chat.messages}
@@ -68,6 +73,7 @@ function ChatPageInner({ tenantName }: { tenantName: string }) {
             onSend={chat.handleSend}
             onClose={() => setChatOpen(false)}
             onStartChat={chat.handleStartChat}
+            onRestart={chat.handleRestart}
           />
         </div>
       )}

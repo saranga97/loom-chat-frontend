@@ -87,7 +87,7 @@ export function useChat({ tenantName }: UseChatOptions) {
     }
   }, []);
 
-  const { connect, send } = useWebSocket({
+  const { connect, send, disconnect } = useWebSocket({
     onEvent: handleEvent,
     onOpen: () => setIsConnected(true),
     onClose: () => setIsConnected(false),
@@ -141,6 +141,19 @@ export function useChat({ tenantName }: UseChatOptions) {
     [send, isStreaming]
   );
 
+  const handleRestart = useCallback(async () => {
+    if (!username) return;
+    disconnect();
+    const result = await apiStartChat(tenantName, username);
+    setRoomId(result.room_id);
+    setMessages([{ role: "assistant", content: result.greeting }]);
+    setIsStreaming(false);
+    setToolCall(null);
+    bufferRef.current = "";
+    saveSession(tenantName, result.room_id, username);
+    connect(tenantName, result.room_id);
+  }, [tenantName, username, disconnect, connect]);
+
   return {
     messages,
     isStreaming,
@@ -151,5 +164,6 @@ export function useChat({ tenantName }: UseChatOptions) {
     restoring,
     handleStartChat,
     handleSend,
+    handleRestart,
   };
 }
