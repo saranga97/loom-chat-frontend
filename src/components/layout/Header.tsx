@@ -18,10 +18,10 @@ export function Header({ onClose }: HeaderProps) {
 
   return (
     <header
-      className="flex items-center gap-3 px-4 py-3 border-b border-border"
+      className="flex items-center gap-3 px-5 py-4"
       style={{ backgroundColor: tenant.theme_colors.primary }}
     >
-      <Avatar className="h-9 w-9 border-2 border-white/30">
+      <Avatar className="h-8 w-8 border-2 border-white/30">
         {tenant.logo_url ? (
           <AvatarImage src={tenant.logo_url} alt={tenant.chatbot_name} />
         ) : null}
@@ -38,7 +38,7 @@ export function Header({ onClose }: HeaderProps) {
       {onClose && (
         <button
           onClick={onClose}
-          className="text-white/80 hover:text-white transition-colors cursor-pointer"
+          className="text-white/70 hover:text-white transition-colors cursor-pointer p-1"
           aria-label="Close chat"
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">

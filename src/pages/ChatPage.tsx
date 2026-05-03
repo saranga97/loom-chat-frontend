@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import { TenantProvider, useTenant } from "@/providers/TenantProvider";
 import { useChat } from "@/hooks/useChat";
 import { ChatWindow } from "@/components/chat/ChatWindow";
-import { UsernameDialog } from "@/components/layout/UsernameDialog";
 import { FloatingChatIcon } from "@/components/layout/FloatingChatIcon";
 
 function ChatPageInner({ tenantName }: { tenantName: string }) {
@@ -54,22 +53,6 @@ function ChatPageInner({ tenantName }: { tenantName: string }) {
     );
   }
 
-  // No room yet — show floating icon + username dialog
-  if (!chat.roomId) {
-    return (
-      <>
-        <UsernameDialog
-          open={chatOpen}
-          onSubmit={(name) => {
-            chat.handleStartChat(name);
-          }}
-        />
-        <FloatingChatIcon onClick={() => setChatOpen(true)} />
-      </>
-    );
-  }
-
-  // Room exists — toggle between floating icon and chat window
   return (
     <>
       {chatOpen && (
@@ -81,8 +64,10 @@ function ChatPageInner({ tenantName }: { tenantName: string }) {
             messages={chat.messages}
             isStreaming={chat.isStreaming}
             toolCall={chat.toolCall}
+            hasRoom={!!chat.roomId}
             onSend={chat.handleSend}
             onClose={() => setChatOpen(false)}
+            onStartChat={chat.handleStartChat}
           />
         </div>
       )}
