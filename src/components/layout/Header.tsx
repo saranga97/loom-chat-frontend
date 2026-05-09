@@ -40,17 +40,21 @@ export function Header({ onClose, onRestart }: HeaderProps) {
       {/* Subtle gradient overlay for depth */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/5 to-transparent" />
 
-      <Avatar className="relative z-10 h-8 w-8 border-2 border-white/30">
-        {tenant.logo_url ? (
-          <AvatarImage src={tenant.logo_url} alt={tenant.chatbot_name} />
-        ) : null}
-        <AvatarFallback
-          className="text-xs font-semibold text-white"
-          style={{ backgroundColor: tenant.theme_colors.secondary }}
-        >
-          {initials}
-        </AvatarFallback>
-      </Avatar>
+      {tenant.theme_colors.header_icon ? (
+        <span className="relative z-10 text-xl">{tenant.theme_colors.header_icon}</span>
+      ) : (
+        <Avatar className="relative z-10 h-8 w-8 border-2 border-white/30">
+          {tenant.logo_url ? (
+            <AvatarImage src={tenant.logo_url} alt={tenant.chatbot_name} />
+          ) : null}
+          <AvatarFallback
+            className="text-xs font-semibold text-white"
+            style={{ backgroundColor: tenant.theme_colors.secondary }}
+          >
+            {initials}
+          </AvatarFallback>
+        </Avatar>
+      )}
 
       <h1 className="relative z-10 flex-1 text-base font-semibold text-white">
         {tenant.chatbot_name}

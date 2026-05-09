@@ -52,6 +52,15 @@ export function TenantProvider({
           "--tenant-secondary",
           config.theme_colors.secondary
         );
+        if (config.theme_colors.text) {
+          root.style.setProperty("--tenant-text", config.theme_colors.text);
+        }
+        if (config.theme_colors.background) {
+          root.style.setProperty(
+            "--tenant-background",
+            config.theme_colors.background
+          );
+        }
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));

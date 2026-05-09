@@ -1,6 +1,13 @@
 export interface ThemeColors {
   primary: string;
   secondary: string;
+  text: string;
+  background: string;
+  mode: string;
+  position: string;
+  floating_icon: string;
+  header_icon: string;
+  animation: string;
 }
 
 export interface TenantConfig {
