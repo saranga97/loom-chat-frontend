@@ -41,6 +41,8 @@
   --color-background: var(--background);
   --color-tenant-primary: var(--tenant-primary, #6366f1);
   --color-tenant-secondary: var(--tenant-secondary, #8b5cf6);
+  --color-tenant-text: var(--tenant-text, #0F172A);
+  --color-tenant-background: var(--tenant-background, #FFFFFF);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -86,6 +88,8 @@
 
   --tenant-primary: #6366f1;
   --tenant-secondary: #8b5cf6;
+  --tenant-text: #0F172A;
+  --tenant-background: #FFFFFF;
 }
 
 @layer base {
@@ -142,3 +146,27 @@
 .animate-slide-up-fade {
   animation: slide-up-fade 0.3s ease-out;
 }
+
+/* Tenant floating icon animations */
+@keyframes anim-pulse-kf {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+@keyframes anim-spin-kf {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes anim-wiggle-kf {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-8deg); }
+  75% { transform: rotate(8deg); }
+}
+@keyframes anim-bounce-kf {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.anim-bounce { animation: anim-bounce-kf 2s ease-in-out infinite; }
+.anim-pulse { animation: anim-pulse-kf 2s ease-in-out infinite; }
+.anim-spin { animation: anim-spin-kf 3s linear infinite; }
+.anim-wiggle { animation: anim-wiggle-kf 1s ease-in-out infinite; }
